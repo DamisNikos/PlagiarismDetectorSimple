@@ -11,32 +11,37 @@ namespace PlagiarismDetectorSimple.Core
     {
         public static ProfileStopWord IntersectProfiles(ProfileStopWord profile1, ProfileStopWord profile2)
         {
-            List<List<string>> intersection = new List<List<string>>();
-            foreach (List<string> ngram1 in profile1.ngrams)
+            List<StopWordNGram> intersection = new List<StopWordNGram>();
+            int ngramLength = profile1.ngrams[0]._stopWords.Count;
+            for (int i = 0; i < profile1.ngrams.Count; i++)
             {
                 int countEquals = 0;
-                foreach (List<string> ngram2 in profile2.ngrams)
+                for (int j = 0; j < profile2.ngrams.Count; j++)
                 {
                     int countEqualWords = 0;
-                    for (int i = 0; i < ngram1.Count; i++)
+                    for (int k = 0; k < ngramLength; k++)
                     {
-                        if (ngram1[i].Equals(ngram2[i]))
+                        if (profile1.ngrams[i]._stopWords[k]._word.Equals(profile2.ngrams[j]._stopWords[k]._word))
                         {
                             countEqualWords++;
                         }
                     }
-                    if (countEqualWords == ngram1.Count)
+                    if (countEqualWords == ngramLength)
                     {
                         countEquals++;
                     }
                 }
                 if (countEquals > 0)
                 {
-                    intersection.Add(ngram1);
+                    intersection.Add(new StopWordNGram() {
+                        _stopWords = profile1.ngrams[i]._stopWords,
+                        _firstIndex = -1,
+                        _lastIndex  = -1
+                    });
                 }
             }
-
-            ProfileStopWord profile = new ProfileStopWord();
+            
+            ProfileStopWord profile = new ProfileStopWord() {ngrams = new List<StopWordNGram>() };
             profile.ngrams = intersection;
             return profile;
         }

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace PlagiarismDetectorSimple.Models
 {
-    class ProfileStopWord
+    class StopWordNGram
     {
-        public List<StopWordNGram> ngrams { get; set; }
+        public List<stopWord> _stopWords { get; set; }
+        public int _firstIndex { get; set; }
+        public int _lastIndex { get; set; }
     }
 }

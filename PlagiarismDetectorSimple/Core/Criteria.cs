@@ -12,7 +12,7 @@ namespace PlagiarismDetectorSimple.Core
         public static ProfileStopWord ApplyCanditateRetrievalCriterion(ProfileStopWord profile)
         {
             List<string> mostCommon6 = new List<string> { "the", "of", "and", "a", "in", "to" };
-            List<List<string>> nGramCollection = new List<List<string>>();
+            List<StopWordNGram> nGramCollection = new List<StopWordNGram>();
             //iterate through all ngrams that belongs to the interesection of the two profiles
             foreach (var ngram in profile.ngrams)
             {
@@ -20,7 +20,7 @@ namespace PlagiarismDetectorSimple.Core
                 int membersofC = 0;
                 int currentsq = 0;
                 //iterate through all members of the ngram
-                foreach (var word in ngram)
+                foreach (var word in ngram._stopWords)
                 {
                     bool found = false;
                     //iterate through all words in C
@@ -44,12 +44,12 @@ namespace PlagiarismDetectorSimple.Core
 
                 }
                 //if criterion (1) is satisfied add this ngram to the collection
-                if ((membersofC < ngram.Count - 1) && (maxseq < ngram.Count - 2))
+                if ((membersofC < ngram._stopWords.Count - 1) && (maxseq < ngram._stopWords.Count - 2))
                 {
                     nGramCollection.Add(ngram);
                 }
             }
-            ProfileStopWord profileStop = new ProfileStopWord();
+            ProfileStopWord profileStop = new ProfileStopWord() { ngrams = new List<StopWordNGram>()};
             profileStop.ngrams = nGramCollection;
             return profileStop;
         }
@@ -57,13 +57,13 @@ namespace PlagiarismDetectorSimple.Core
         public static ProfileStopWord ApplyMatchCriterion(ProfileStopWord profile)
         {
             List<string> mostCommon6 = new List<string> { "the", "of", "and", "a", "in", "to" };
-            List<List<String>> nGramCollection = new List<List<string>>();
+            List<StopWordNGram> nGramCollection = new List<StopWordNGram>();
             //iterate through each n-gram
             foreach (var ngram in profile.ngrams)
             {
                 int membersofC = 0;
                 //iterate through each word in the n-gram
-                foreach (var word in ngram)
+                foreach (var word in ngram._stopWords)
                 {
                     //iterate through each word in C
                     for (int i = 0; i < mostCommon6.Count; i++)
@@ -77,12 +77,12 @@ namespace PlagiarismDetectorSimple.Core
                     }
                 }
                 //if criterion (2) is satisfied add this ngram to the collection
-                if ((membersofC < ngram.Count))
+                if ((membersofC < ngram._stopWords.Count))
                 {
                     nGramCollection.Add(ngram);
                 }
             }
-            ProfileStopWord profileStop = new ProfileStopWord();
+            ProfileStopWord profileStop = new ProfileStopWord() { ngrams = new List<StopWordNGram>()};
             profileStop.ngrams = nGramCollection;
             return profileStop;
         }
@@ -90,29 +90,43 @@ namespace PlagiarismDetectorSimple.Core
         public static List<int[]> MatchedNgramSet(ProfileStopWord suspiciousProfile, ProfileStopWord originalProfile, ProfileStopWord commonProfile)
         {
             List<int[]> setOfMatched = new List<int[]>();
-            foreach (var ngram in commonProfile.ngrams)
+            for (int i = 0; i < commonProfile.ngrams.Count; i++)
             {
-                int index1 = suspiciousProfile.ngrams.IndexOf(ngram);
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
-                //.....................IndexOF() does not work for the second profile..................//
-                int location = 0;
-                for (int index2 = 0; index2 < originalProfile.ngrams.Count; index2++)
+                int locationSuspicious = 0;
+                for (int j = 0; j < suspiciousProfile.ngrams.Count; j++)
                 {
                     int matches = 0;
-                    for (int i = 0; i < originalProfile.ngrams[index2].Count; i++)
+                    for (int k = 0; k < suspiciousProfile.ngrams[j]._stopWords.Count; k++)
                     {
-                        if (originalProfile.ngrams[index2][i].Equals(ngram[i]))
+                        if (suspiciousProfile.ngrams[j]._stopWords[k].Equals(commonProfile.ngrams[i]._stopWords[k]))
                         {
                             matches++;
                         }
                     }
-                    if (matches == originalProfile.ngrams[index2].Count)
+                    if (matches == suspiciousProfile.ngrams[j]._stopWords.Count)
                     {
-                        location = index2;
+                        locationSuspicious = j;
                     }
                 }
-                setOfMatched.Add(new int[] { index1, location  });
+                int locationOriginal = 0;
+                for (int j = 0; j < originalProfile.ngrams.Count; j++)
+                {
+                    int matches = 0;
+                    for (int k = 0; k < originalProfile.ngrams[j]._stopWords.Count; k++)
+                    {
+                        if (originalProfile.ngrams[j]._stopWords[k].Equals(commonProfile.ngrams[i]._stopWords[k]))
+                        {
+                            matches++;
+                        }
+                    }
+                    if (matches == originalProfile.ngrams[j]._stopWords.Count)
+                    {
+                        locationOriginal = j;
+                    }
+                }
+                setOfMatched.Add(new int[] { locationSuspicious, locationOriginal });
             }
+           
             return setOfMatched;
         }
 

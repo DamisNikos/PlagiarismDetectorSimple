@@ -26,8 +26,8 @@ namespace PlagiarismDetectorSimple.Demos
             string[] wordsOfOriginal = DocumentParser.GetText(original);
             //Step-1.2
             //Get a list of strings of all 50 most used words contained in the document
-            List<String> stopWordSuspicious = ProfileStopWordBuilder.GetStopWordPresentation(wordsOfSuspicious);
-            List<String> stopWordOriginal = ProfileStopWordBuilder.GetStopWordPresentation(wordsOfOriginal);
+            List<stopWord> stopWordSuspicious = ProfileStopWordBuilder.GetStopWordPresentation(wordsOfSuspicious);
+            List<stopWord> stopWordOriginal = ProfileStopWordBuilder.GetStopWordPresentation(wordsOfOriginal);
             //Step-1.3
             //Get the document's profile in stopword ngrams
             ProfileStopWord profileSuspicious = ProfileStopWordBuilder.GetProfileStopWord(stopWordSuspicious, n1);
@@ -38,11 +38,10 @@ namespace PlagiarismDetectorSimple.Demos
             //Step-2.1
             //Get the intersected(common ngrams) profile of the 2 documents
             ProfileStopWord inter = ProfileIntersection.IntersectProfiles(profileSuspicious, profileOriginal);
-
             //Step-2.1.1
             //Check to see if any common ngrams found
             if (inter.ngrams.Count == 0)
-            {
+            {                
                 Console.WriteLine("----------------");                                              //**************************
                 Console.WriteLine("File {0} checked against file {1} and is not a plagiarism case", //**************************
                                       Path.GetFileName(suspicious), Path.GetFileName(original));    //**************************
@@ -74,40 +73,40 @@ namespace PlagiarismDetectorSimple.Demos
             //Get a list M of matched Ngrams
             //where members of M are ordered according to the first appearance of a match in the suspicious document
             List<int[]> M = Criteria.MatchedNgramSet(profileSuspiciousBound, profileOriginalBound, finalInterBound);
-            //Step-3.6 Apply criterion (3)
-            List<List<Boundary>> boundaries = BoundaryDetection.DetectInitialSet(M, thetaG);
-            //Step-3.7 Apply criterion (4)
-            Boundaries boundariesSuspicious = new Boundaries() { listOfBoundaries = new List<Boundary>() };
-            Boundaries boundariesOriginal = new Boundaries() { listOfBoundaries = new List<Boundary>() };
-            foreach (List<Boundary> mBoundary in boundaries)
-            {
-                boundariesSuspicious.listOfBoundaries.Add(mBoundary[0]);
-                boundariesOriginal.listOfBoundaries.Add(mBoundary[1]);
-            }
+            ////Step-3.6 Apply criterion (3)
+            //List<List<Boundary>> boundaries = BoundaryDetection.DetectInitialSet(M, thetaG);
+            ////Step-3.7 Apply criterion (4)
+            //Boundaries boundariesSuspicious = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+            //Boundaries boundariesOriginal = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+            //foreach (List<Boundary> mBoundary in boundaries)
+            //{
+            //    boundariesSuspicious.listOfBoundaries.Add(mBoundary[0]);
+            //    boundariesOriginal.listOfBoundaries.Add(mBoundary[1]);
+            //}
 
-            Boundaries passageBoundariesSuspicious = BoundaryConverter.StopWordToWord(boundariesSuspicious, wordsOfSuspicious, n2);
-            Boundaries passageBoundariesOriginal = BoundaryConverter.StopWordToWord(boundariesOriginal, wordsOfOriginal, n2);
-            Console.WriteLine($"{passageBoundariesSuspicious.listOfBoundaries.Count} " +
-                              $"matching passages detected between documents {Path.GetFileName(suspicious)}" +
-                              $" and {Path.GetFileName(original)}");
-            for (int i = 0; i < passageBoundariesOriginal.listOfBoundaries.Count; i++)
-            {
-                Console.WriteLine($"Passage no.{i+1}:");
-                Console.WriteLine($"Document {Path.GetFileName(suspicious)}");
-                for (int j = passageBoundariesSuspicious.listOfBoundaries[i].lower;
-                    j <= passageBoundariesSuspicious.listOfBoundaries[i].upper; j++)
-                {
-                    Console.Write($"{wordsOfSuspicious[j]} ");
-                }
-                Console.WriteLine();
-                Console.WriteLine($"Document {Path.GetFileName(original)}");
-                for (int j = passageBoundariesOriginal.listOfBoundaries[i].lower;
-                    j <= passageBoundariesOriginal.listOfBoundaries[i].upper; j++)
-                {
-                    Console.Write($"{wordsOfOriginal[j]} ");
-                }
-                Console.WriteLine();
-            }
+            //Boundaries passageBoundariesSuspicious = BoundaryConverter.StopWordToWord(boundariesSuspicious, wordsOfSuspicious, n2);
+            //Boundaries passageBoundariesOriginal = BoundaryConverter.StopWordToWord(boundariesOriginal, wordsOfOriginal, n2);
+            //Console.WriteLine($"{passageBoundariesSuspicious.listOfBoundaries.Count} " +
+            //                  $"matching passages detected between documents {Path.GetFileName(suspicious)}" +
+            //                  $" and {Path.GetFileName(original)}");
+            //for (int i = 0; i < passageBoundariesOriginal.listOfBoundaries.Count; i++)
+            //{
+            //    Console.WriteLine($"Passage no.{i+1}:");
+            //    Console.WriteLine($"Document {Path.GetFileName(suspicious)}");
+            //    for (int j = passageBoundariesSuspicious.listOfBoundaries[i].lower;
+            //        j <= passageBoundariesSuspicious.listOfBoundaries[i].upper; j++)
+            //    {
+            //        Console.Write($"{wordsOfSuspicious[j]} ");
+            //    }
+            //    Console.WriteLine();
+            //    Console.WriteLine($"Document {Path.GetFileName(original)}");
+            //    for (int j = passageBoundariesOriginal.listOfBoundaries[i].lower;
+            //        j <= passageBoundariesOriginal.listOfBoundaries[i].upper; j++)
+            //    {
+            //        Console.Write($"{wordsOfOriginal[j]} ");
+            //    }
+            //    Console.WriteLine();
+            //}
 
 
 

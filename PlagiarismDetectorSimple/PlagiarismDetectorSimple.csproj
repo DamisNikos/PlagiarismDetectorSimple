@@ -59,6 +59,8 @@
     <Compile Include="Models\Document.cs" />
     <Compile Include="Models\ProfileCharacter.cs" />
     <Compile Include="Models\ProfileStopWord.cs" />
+    <Compile Include="Models\stopWord.cs" />
+    <Compile Include="Models\StopWordNGram.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
