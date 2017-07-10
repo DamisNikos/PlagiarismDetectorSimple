@@ -51,11 +51,11 @@ namespace PlagiarismDetectorSimple.Core
                 //add words to each n-gram
                 for (int j = 0; j < nGramSize; j++)
                 {
-                    ngram._stopWords.Add(swPresentation[i]);
+                    ngram._stopWords.Add(swPresentation[i+j]);
                 }
                 //calculate the first and last index (in document's words) of the ngram
                 ngram._firstIndex = ngram._stopWords[0]._index;
-                ngram._lastIndex = ngram._stopWords.Last()._index;
+                ngram._lastIndex = ngram._stopWords[nGramSize - 1]._index;
                 //add current n-gram to the profile
                 docProfile.Add(ngram);
             }

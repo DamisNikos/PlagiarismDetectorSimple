@@ -98,7 +98,7 @@ namespace PlagiarismDetectorSimple.Core
                     int matches = 0;
                     for (int k = 0; k < suspiciousProfile.ngrams[j]._stopWords.Count; k++)
                     {
-                        if (suspiciousProfile.ngrams[j]._stopWords[k].Equals(commonProfile.ngrams[i]._stopWords[k]))
+                        if (suspiciousProfile.ngrams[j]._stopWords[k]._word.Equals(commonProfile.ngrams[i]._stopWords[k]._word))
                         {
                             matches++;
                         }
@@ -108,13 +108,14 @@ namespace PlagiarismDetectorSimple.Core
                         locationSuspicious = j;
                     }
                 }
+
                 int locationOriginal = 0;
                 for (int j = 0; j < originalProfile.ngrams.Count; j++)
                 {
                     int matches = 0;
                     for (int k = 0; k < originalProfile.ngrams[j]._stopWords.Count; k++)
                     {
-                        if (originalProfile.ngrams[j]._stopWords[k].Equals(commonProfile.ngrams[i]._stopWords[k]))
+                        if (originalProfile.ngrams[j]._stopWords[k]._word.Equals(commonProfile.ngrams[i]._stopWords[k]._word))
                         {
                             matches++;
                         }

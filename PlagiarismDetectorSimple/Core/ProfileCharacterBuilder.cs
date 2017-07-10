@@ -41,9 +41,10 @@ namespace PlagiarismDetectorSimple.Core
 
         public static ProfileCharacter RemoveDuplicates(ProfileCharacter profile)
         {
-            List<List<char>> profileWithoutDuplicates = new List<List<char>>();
-            profileWithoutDuplicates.Add(profile.ngrams[0]);
-
+            List<List<char>> profileWithoutDuplicates = new List<List<char>>
+            {
+                profile.ngrams[0]
+            };
             for (int i = 1; i < profile.ngrams.Count; i++)
             {
                 bool foundInNew = false;
@@ -59,7 +60,7 @@ namespace PlagiarismDetectorSimple.Core
                         }
                     }
                     if (isEqual)
-                    {
+                    {                        
                         foundInNew = true;
                         break;
                     }
@@ -70,6 +71,8 @@ namespace PlagiarismDetectorSimple.Core
 
             }
             ProfileCharacter newProfile = new ProfileCharacter() { ngrams = profileWithoutDuplicates };
+            var DoubleValues = profile.ngrams.Except(newProfile.ngrams).ToList<List<char>>();
+
             return newProfile;
 
         }

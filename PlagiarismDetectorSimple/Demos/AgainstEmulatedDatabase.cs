@@ -13,7 +13,7 @@ namespace PlagiarismDetectorSimple.Demos
     {
         public static void Run() {
             string database = @"Files\Database\";
-            string inputs = @"Files\Inputs";
+            string inputs = @"Files\Inputs\taskd";
             string[] inputFiles = Directory.GetFiles(inputs, "*.pdf", SearchOption.AllDirectories);
 
             foreach (string suspiciousFile in inputFiles)
@@ -44,15 +44,13 @@ namespace PlagiarismDetectorSimple.Demos
                     TempDirectory.CreateTempDirectory(pathToTemp, original, suspicious);
 
                     //Run algorithm
-                    /////////////////////////////////////////
                     string tempPathToSuspicious = pathToTemp + "\\" + Path.GetFileName(suspiciousFile);
                     string tempPathToOriginal = pathToTemp + "\\" + Path.GetFileName(originalFiles[i]);
                     Algorithm.Run(tempPathToSuspicious, tempPathToOriginal);
 
-                    /////////////////////////////////////////
                     Console.WriteLine("Examined Against File:{0}", Path.GetFileName(originalFiles[i]));//**************************
 
-                    // Console.ReadLine();
+                    //Console.ReadLine();
 
                     //Deleting the temporary array
                     ConverterToByteArray.ByteArrayToFile(database + Path.GetFileName(suspicious.DocName), suspicious.DocContent);

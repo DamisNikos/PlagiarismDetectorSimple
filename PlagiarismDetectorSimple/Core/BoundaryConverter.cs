@@ -9,45 +9,56 @@ namespace PlagiarismDetectorSimple.Core
 {
     class BoundaryConverter
     {
-        public static Boundaries StopWordToWord(Boundaries boundaries, string[] wordsOfDocument, int nGramSize)
+        public static Boundaries StopWordToWord(Boundaries boundaries, ProfileStopWord wordsOfDocument)
         {
-            String[] top50words = DocumentParser.GetText(@"Files\\Top50UsedWords.docx");
-            Boundaries targetBoundaries = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+            Boundaries newBoundaries = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+            foreach (Boundary boundary in boundaries.listOfBoundaries) {
+                Boundary newBoundary = new Boundary() {
+                    lower = wordsOfDocument.ngrams[boundary.lower]._firstIndex,
+                    upper = wordsOfDocument.ngrams[boundary.upper]._lastIndex
+            };
+                newBoundaries.listOfBoundaries.Add(newBoundary);
+            }
+            return newBoundaries;
 
-            int currentIndexOfStopWord = 0;
+
+            //String[] top50words = DocumentParser.GetText(@"Files\\Top50UsedWords.docx");
+            //Boundaries targetBoundaries = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+
+            //int currentIndexOfStopWord = 0;
             
 
-            foreach (Boundary boundary in boundaries.listOfBoundaries)
-            {
-                boundary.upper += nGramSize - 1;
-                bool foundBoundary = false;
-                Boundary targetBoundary = new Boundary();
-                for (int i = 0; i<wordsOfDocument.Length; i++)
-                {
-                    foreach (string commonWord in top50words)
-                    {
-                        if (wordsOfDocument[i].Equals(commonWord))
-                        {
-                            if (currentIndexOfStopWord == boundary.lower)
-                            {
-                                targetBoundary.lower = i;
-                            }
-                            if (currentIndexOfStopWord == boundary.upper) {
-                                targetBoundary.upper = i;
-                                targetBoundaries.listOfBoundaries.Add(targetBoundary);
-                                foundBoundary = true;
-                                break;
-                            }
-                            currentIndexOfStopWord++;
-                        }
-                    }
-                    if (foundBoundary)
-                    {
-                        break;
-                    }
-                }
-            }
-            return targetBoundaries;
+            //foreach (Boundary boundary in boundaries.listOfBoundaries)
+            //{
+            //    boundary.upper += nGramSize - 1;
+            //    bool foundBoundary = false;
+            //    Boundary targetBoundary = new Boundary();
+            //    for (int i = 0; i<wordsOfDocument.Length; i++)
+            //    {
+            //        foreach (string commonWord in top50words)
+            //        {
+            //            if (wordsOfDocument[i].Equals(commonWord))
+            //            {
+            //                if (currentIndexOfStopWord == boundary.lower)
+            //                {
+            //                    targetBoundary.lower = i;
+            //                }
+            //                if (currentIndexOfStopWord == boundary.upper) {
+            //                    targetBoundary.upper = i;
+            //                    targetBoundaries.listOfBoundaries.Add(targetBoundary);
+            //                    foundBoundary = true;
+            //                    break;
+            //                }
+            //                currentIndexOfStopWord++;
+            //            }
+            //        }
+            //        if (foundBoundary)
+            //        {
+            //            break;
+            //        }
+            //    }
+            //}
+            //return targetBoundaries;
         }
     }
 }

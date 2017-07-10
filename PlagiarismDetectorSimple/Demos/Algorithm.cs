@@ -15,7 +15,7 @@ namespace PlagiarismDetectorSimple.Demos
             int n1 = 11;
             int n2 = 8;
             int n3 = 3;
-            int thetaG = 5;
+            int thetaG = 100;
             string original = _original;
             string suspicious = _suspicious;
 
@@ -43,8 +43,9 @@ namespace PlagiarismDetectorSimple.Demos
             if (inter.ngrams.Count == 0)
             {                
                 Console.WriteLine("----------------");                                              //**************************
-                Console.WriteLine("File {0} checked against file {1} and is not a plagiarism case", //**************************
-                                      Path.GetFileName(suspicious), Path.GetFileName(original));    //**************************
+                Console.WriteLine("Not a plagiarism case");                                         //**************************
+                Console.WriteLine("----------------");                                              //**************************
+
                 return;
             }
             //Step-2.2
@@ -55,8 +56,9 @@ namespace PlagiarismDetectorSimple.Demos
             if (finalInter.ngrams.Count == 0)
             {
                 Console.WriteLine("----------------");                                              //**************************
-                Console.WriteLine("File {0} checked against file {1} and is not a plagiarism case", //**************************
-                                      Path.GetFileName(suspicious), Path.GetFileName(original));    //**************************
+                Console.WriteLine("Not a plagiarism case");                                         //**************************
+                Console.WriteLine("----------------");                                              //**************************
+
                 return;
             }
 
@@ -73,40 +75,71 @@ namespace PlagiarismDetectorSimple.Demos
             //Get a list M of matched Ngrams
             //where members of M are ordered according to the first appearance of a match in the suspicious document
             List<int[]> M = Criteria.MatchedNgramSet(profileSuspiciousBound, profileOriginalBound, finalInterBound);
-            ////Step-3.6 Apply criterion (3)
-            //List<List<Boundary>> boundaries = BoundaryDetection.DetectInitialSet(M, thetaG);
-            ////Step-3.7 Apply criterion (4)
-            //Boundaries boundariesSuspicious = new Boundaries() { listOfBoundaries = new List<Boundary>() };
-            //Boundaries boundariesOriginal = new Boundaries() { listOfBoundaries = new List<Boundary>() };
-            //foreach (List<Boundary> mBoundary in boundaries)
-            //{
-            //    boundariesSuspicious.listOfBoundaries.Add(mBoundary[0]);
-            //    boundariesOriginal.listOfBoundaries.Add(mBoundary[1]);
-            //}
+            //Step-3.6 Apply criterion (3)
+            List<List<Boundary>> boundaries = BoundaryDetection.DetectInitialSet(M, thetaG);
+            //Step-3.7 Apply criterion (4)
+            Boundaries boundariesSuspicious = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+            Boundaries boundariesOriginal = new Boundaries() { listOfBoundaries = new List<Boundary>() };
+            foreach (List<Boundary> mBoundary in boundaries)
+            {
+                boundariesSuspicious.listOfBoundaries.Add(mBoundary[0]);
+                boundariesOriginal.listOfBoundaries.Add(mBoundary[1]);
+            }
 
-            //Boundaries passageBoundariesSuspicious = BoundaryConverter.StopWordToWord(boundariesSuspicious, wordsOfSuspicious, n2);
-            //Boundaries passageBoundariesOriginal = BoundaryConverter.StopWordToWord(boundariesOriginal, wordsOfOriginal, n2);
-            //Console.WriteLine($"{passageBoundariesSuspicious.listOfBoundaries.Count} " +
-            //                  $"matching passages detected between documents {Path.GetFileName(suspicious)}" +
-            //                  $" and {Path.GetFileName(original)}");
-            //for (int i = 0; i < passageBoundariesOriginal.listOfBoundaries.Count; i++)
-            //{
-            //    Console.WriteLine($"Passage no.{i+1}:");
-            //    Console.WriteLine($"Document {Path.GetFileName(suspicious)}");
-            //    for (int j = passageBoundariesSuspicious.listOfBoundaries[i].lower;
-            //        j <= passageBoundariesSuspicious.listOfBoundaries[i].upper; j++)
-            //    {
-            //        Console.Write($"{wordsOfSuspicious[j]} ");
-            //    }
-            //    Console.WriteLine();
-            //    Console.WriteLine($"Document {Path.GetFileName(original)}");
-            //    for (int j = passageBoundariesOriginal.listOfBoundaries[i].lower;
-            //        j <= passageBoundariesOriginal.listOfBoundaries[i].upper; j++)
-            //    {
-            //        Console.Write($"{wordsOfOriginal[j]} ");
-            //    }
-            //    Console.WriteLine();
-            //}
+            Boundaries passageBoundariesSuspicious = BoundaryConverter.StopWordToWord(boundariesSuspicious, profileSuspiciousBound);
+            Boundaries passageBoundariesOriginal = BoundaryConverter.StopWordToWord(boundariesOriginal,profileOriginalBound);
+
+
+
+
+
+            Console.WriteLine($"{passageBoundariesSuspicious.listOfBoundaries.Count} " +                          //*****************
+                              $"matching passage(s) detected between documents {Path.GetFileName(suspicious)}" +    //*****************
+                              $" and {Path.GetFileName(original)}");                                              //*****************
+            //for each matching passage calculate the similarity score
+            for (int i = 0; i < passageBoundariesOriginal.listOfBoundaries.Count; i++)                            //*****************
+            {                                                                                                     //*****************
+                //=================Step-4 Creating the profiles of letter ngrams=================================
+                //Step-4.1
+                //Get the document's profile in letters ngrams (duplicated entries are removed)
+                ProfileCharacter passageSuspicious = ProfileCharacterBuilder.GetProfileCharacter(
+                    wordsOfSuspicious, passageBoundariesSuspicious.listOfBoundaries[i], n3);
+                ProfileCharacter passageOriginal = ProfileCharacterBuilder.GetProfileCharacter(
+                    wordsOfOriginal, passageBoundariesOriginal.listOfBoundaries[i], n3);
+                //Step-4.1.1
+                //Remove duplicate entries
+                passageSuspicious = ProfileCharacterBuilder.RemoveDuplicates(passageSuspicious);
+                passageOriginal = ProfileCharacterBuilder.RemoveDuplicates(passageOriginal);
+                //============================Step-5 Post-processing=============================================
+                //Step-5.1  (overloading method used on step-2.1 and step-3.2)
+                //Get the intersected(common ngrams) profile of the 2 passages
+                ProfileCharacter passageIntersection = ProfileIntersection.IntersectProfiles(
+                     passageSuspicious, passageOriginal);
+                //Step-5.2
+                //Apply criterion (5) to find the similarity score between the 2 profiles
+                float similarityScore = Criteria.SimilarityScore(
+                    passageSuspicious, passageOriginal, passageIntersection);
+
+                Console.WriteLine($"Passage no.{i + 1}:");                                                        //*****************
+                Console.WriteLine($"Document {Path.GetFileName(suspicious)}");                                    //*****************
+                for (int j = passageBoundariesSuspicious.listOfBoundaries[i].lower;                               //*****************
+                    j <= passageBoundariesSuspicious.listOfBoundaries[i].upper; j++)                              //*****************
+                {                                                                                                 //*****************
+                    Console.Write($"{wordsOfSuspicious[j]} ");                                                    //*****************
+                }                                                                                                 //*****************
+                Console.WriteLine();                                                                              //*****************
+                Console.WriteLine($"Document {Path.GetFileName(original)}");                                      //*****************
+                for (int j = passageBoundariesOriginal.listOfBoundaries[i].lower;                                 //*****************
+                    j <= passageBoundariesOriginal.listOfBoundaries[i].upper; j++)                                //*****************
+                {                                                                                                 //*****************
+                    Console.Write($"{wordsOfOriginal[j]} ");                                                      //*****************
+                }                                                                                                 //*****************
+                Console.WriteLine();                                                                              //*****************
+                Console.WriteLine($"***Similarity score between above 2 passages:{similarityScore}***");          //*****************
+                Console.WriteLine();                                                                              //*****************
+                Console.WriteLine();                                                                              //*****************
+                Console.WriteLine();                                                                              //*****************
+            }
 
 
 

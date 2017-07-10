@@ -49,12 +49,12 @@
     <Compile Include="Core\ConverterToByteArray.cs" />
     <Compile Include="Core\Criteria.cs" />
     <Compile Include="Core\DocumentParser.cs" />
-    <Compile Include="Core\Printer.cs" />
     <Compile Include="Core\ProfileCharacterBuilder.cs" />
     <Compile Include="Core\ProfileIntersection.cs" />
     <Compile Include="Core\ProfileStopWordBuilder.cs" />
     <Compile Include="Core\TempDirectory.cs" />
-    <Compile Include="Demos\Demo.cs" />
+    <Compile Include="Demos\IntersectionTest.cs" />
+    <Compile Include="Demos\SimilarityTest.cs" />
     <Compile Include="Models\Boundary.cs" />
     <Compile Include="Models\Document.cs" />
     <Compile Include="Models\ProfileCharacter.cs" />
